@@ -1,0 +1,6 @@
+{
+  "displayName": "Push to performance platform",
+  "description": "Automatically publish data when it is uploaded",
+  "icon": "https://s3-eu-west-1.amazonaws.com/sw-icons/tool-icon-gds.png",
+  "color": "#097F96"
+}
