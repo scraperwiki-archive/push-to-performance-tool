@@ -57,5 +57,19 @@ class TestDataDownloader(unittest.TestCase):
 
         self.assertEqual(d, [{1: 2}] * 5001)
 
+    def test_missing_database(self):
+        self.mock_response.json.return_value = {'error': ''}
+
+        d = download_data(self.box_url)
+
+        self.assertEqual(d, [])
+
+    def test_missing_table(self):
+        self.mock_response.json.return_value = 'Could not find table swdata'
+
+        d = download_data(self.box_url)
+
+        self.assertEqual(d, [])
+
 if __name__ == '__main__':
    unittest.main()
