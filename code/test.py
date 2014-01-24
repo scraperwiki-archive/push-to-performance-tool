@@ -20,16 +20,19 @@ class Dispenser(object):
 class TestDataDownloader(unittest.TestCase):
     def setUp(self):
         self.box_url = 'http://example.com/foo/bar'
+        self.patcher = mock.patch('requests.get')
+        self.mock_requests_get = self.patcher.start()
 
-    @mock.patch('requests.get')
-    def test_requesting_data(self, mock_requests_get):
+    def tearDown(self):
+        self.patcher.stop()
+
+    def test_requesting_data(self):
         download_data(self.box_url)
         url = '{0}/sql?q=select * from swdata limit 5000 offset 0'.format(self.box_url)
-        mock_requests_get.assert_called_with(url)
+        self.mock_requests_get.assert_called_with(url)
 
-    @mock.patch('requests.get')
-    def test_decoding_requested_data(self, mock_requests_get):
-        mock_requests_get.return_value = response = mock.Mock()
+    def test_decoding_requested_data(self):
+        self.mock_requests_get.return_value = response = mock.Mock()
 
         # Tell responseObject.json() what to return
         response.json.return_value = [{1: 2}]
@@ -39,9 +42,8 @@ class TestDataDownloader(unittest.TestCase):
 
         self.assertEqual(d, [{1: 2}])
 
-    @mock.patch('requests.get')
-    def test_downloads_multiple_chunks(self, mock_requests_get):
-        mock_requests_get.return_value = response = mock.Mock()
+    def test_downloads_multiple_chunks(self):
+        self.mock_requests_get.return_value = response = mock.Mock()
 
         # Tell responseObject.json() to return
         # `first_response` the first time it's called and
@@ -53,9 +55,10 @@ class TestDataDownloader(unittest.TestCase):
         d = download_data(self.box_url)
 
         url = '{0}/sql?q=select * from swdata limit 5000 offset 5000'.format(self.box_url)
-        mock_requests_get.assert_called_with(url)
+        self.mock_requests_get.assert_called_with(url)
 
         self.assertEqual(d, [{1: 2}] * 5001)
+
 
 if __name__ == '__main__':
    unittest.main()
