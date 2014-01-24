@@ -9,7 +9,7 @@ import simplejson
 
 # The functions we want to test
 # are in ./update.py
-from update import download_data
+from update import download_data, push_data
 
 
 # This gets used in our tests to fake some API calls
@@ -95,6 +95,59 @@ class TestDataDownloader(unittest.TestCase):
         d = download_data(self.box_url)
 
         self.assertEqual(d, [])
+
+
+class TestDataPusher(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    @mock.patch('update.Bucket')
+    def test_bucket_is_created_with_url_and_token(self, Bucket):
+        url = 'http://performance.example.com'
+        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+        data = [{1: 2}]
+
+        push_data(url, token, data)
+
+        Bucket.assert_called_with(url, token)
+
+    @mock.patch('update.Bucket')
+    def test_empty_data_is_not_posted(self, Bucket):
+        url = 'http://performance.example.com'
+        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+        data = []
+
+        push_data(url, token, data)
+
+        self.assertFalse(Bucket().post.called)
+
+    @mock.patch('update.Bucket')
+    def test_data_is_posted(self, Bucket):
+        url = 'http://performance.example.com'
+        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+        data = [{1: 2}]
+
+        push_data(url, token, data)
+
+        Bucket().post.assert_called_with(data)
+
+    @mock.patch('update.Bucket')
+    def test_data_is_posted_in_chunks(self, Bucket):
+        url = 'http://performance.example.com'
+        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+        data = [{1: 2}] * 2001
+
+        push_data(url, token, data)
+
+        p = Bucket().post
+
+        self.assertEquals(p.call_count, 2)
+        p.assert_any_call([{1: 2}] * 2000)
+        p.assert_any_call([{1: 2}])
+
 
 if __name__ == '__main__':
    unittest.main()

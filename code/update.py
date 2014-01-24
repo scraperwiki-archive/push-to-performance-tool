@@ -5,6 +5,11 @@ import requests
 import sys
 import itertools
 
+from backdrop.collector.write import Bucket
+from backdrop.collector.write import JsonEncoder
+
+from dshelpers import batch_processor
+
 import scraperwiki.runlog; scraperwiki.runlog.setup()
 
 
@@ -14,16 +19,11 @@ def main():
         # write error message
         return
 
-    raise RuntimeError("Something went wrong")
-
     box_url = sys.argv[1]
     data = download_data(box_url)
 
-    from pprint import pprint
-    pprint(data)
-
     # Upload data to performance platform
-    result = magic_upload_to_gds(where, data)
+    result = push_data(url, token, data)
 
     # Write upload date to index
     if result != "all good":
@@ -51,6 +51,14 @@ def download_data(box_url):
             break
 
     return all_results
+
+
+def push_data(url, token, data):
+    if len(data):
+        bucket = Bucket(url, token)
+        with batch_processor(bucket.post) as uploader:
+            for row in data:
+                uploader.push(row)
 
 
 if __name__ == '__main__':
