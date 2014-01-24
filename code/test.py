@@ -88,5 +88,13 @@ class TestDataDownloader(unittest.TestCase):
 
         self.assertEqual(d, [])
 
+    def test_http_error_status(self):
+        self.mock_response.ok = False
+        self.mock_response.json.return_value = [{1: 2}]
+
+        d = download_data(self.box_url)
+
+        self.assertEqual(d, [])
+
 if __name__ == '__main__':
    unittest.main()

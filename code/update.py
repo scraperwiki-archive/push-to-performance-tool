@@ -36,6 +36,9 @@ def download_data(box_url):
         url = '{0}/sql?q=select * from swdata limit 5000 offset {1}'.format(box_url, offset)
         response = requests.get(url)
 
+        if not response.ok:
+            return all_results
+
         try:
             chunk = response.json()
         except:
