@@ -100,75 +100,60 @@ class TestDataDownloader(unittest.TestCase):
 
 class TestDataPusher(unittest.TestCase):
     def setUp(self):
-        pass
+        self.patcher = mock.patch('update.Bucket')
+        self.Bucket = self.patcher.start()
+        self.url = 'http://performance.example.com'
+        self.token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
 
     def tearDown(self):
-        pass
+        self.patcher.stop()
 
-    @mock.patch('update.Bucket')
-    def test_bucket_is_created_with_url_and_token(self, Bucket):
-        url = 'http://performance.example.com'
-        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+    def test_bucket_is_created_with_url_and_token(self):
         data = [{1: 2}]
 
-        push_data(url, token, data)
+        push_data(self.url, self.token, data)
 
-        Bucket.assert_called_with(url, token)
+        self.Bucket.assert_called_with(self.url, self.token)
 
-    @mock.patch('update.Bucket')
-    def test_empty_data_is_not_posted(self, Bucket):
-        url = 'http://performance.example.com'
-        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+    def test_empty_data_is_not_posted(self):
         data = []
 
-        push_data(url, token, data)
+        push_data(self.url, self.token, data)
 
-        self.assertFalse(Bucket().post.called)
+        self.assertFalse(self.Bucket().post.called)
 
-    @mock.patch('update.Bucket')
-    def test_data_is_posted(self, Bucket):
-        url = 'http://performance.example.com'
-        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+    def test_data_is_posted(self):
         data = [{1: 2}]
 
-        push_data(url, token, data)
+        push_data(self.url, self.token, data)
 
-        Bucket().post.assert_called_with(data)
+        self.Bucket().post.assert_called_with(data)
 
-    @mock.patch('update.Bucket')
-    def test_data_is_posted_in_chunks(self, Bucket):
-        url = 'http://performance.example.com'
-        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+    def test_data_is_posted_in_chunks(self):
         data = [{1: 2}] * 2001
 
-        push_data(url, token, data)
+        push_data(self.url, self.token, data)
 
-        p = Bucket().post
+        p = self.Bucket().post
 
         self.assertEquals(p.call_count, 2)
         p.assert_any_call([{1: 2}] * 2000)
         p.assert_any_call([{1: 2}])
 
-    @mock.patch('update.Bucket')
-    def test_successful_runs_are_logged(self, Bucket):
-        url = 'http://performance.example.com'
-        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+    def test_successful_runs_are_logged(self):
         data = [{1: 2}]
 
-        log = push_data(url, token, data)
+        log = push_data(self.url, self.token, data)
 
         self.assertEquals(log['status'], 'success')
         self.assertEquals(log['rows_pushed'], 1)
         self.assertEquals(log['message'], None)
         self.assertIsInstance(log['date'], datetime.datetime)
 
-    @mock.patch('update.Bucket')
-    def test_empty_data_is_logged(self, Bucket):
-        url = 'http://performance.example.com'
-        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+    def test_empty_data_is_logged(self):
         data = []
 
-        log = push_data(url, token, data)
+        log = push_data(self.url, self.token, data)
 
         self.assertEquals(log['status'], 'error')
         self.assertEquals(log['rows_pushed'], 0)
