@@ -22,6 +22,7 @@ class TestDataDownloader(unittest.TestCase):
         self.box_url = 'http://example.com/foo/bar'
         self.patcher = mock.patch('requests.get')
         self.mock_requests_get = self.patcher.start()
+        self.mock_requests_get.return_value = self.mock_response = mock.MagicMock()
 
     def tearDown(self):
         self.patcher.stop()
@@ -32,10 +33,9 @@ class TestDataDownloader(unittest.TestCase):
         self.mock_requests_get.assert_called_with(url)
 
     def test_decoding_requested_data(self):
-        self.mock_requests_get.return_value = response = mock.Mock()
 
         # Tell responseObject.json() what to return
-        response.json.return_value = [{1: 2}]
+        self.mock_response.json.return_value = [{1: 2}]
 
         # Try it out, with our mocked responseObject
         d = download_data(self.box_url)
@@ -43,14 +43,12 @@ class TestDataDownloader(unittest.TestCase):
         self.assertEqual(d, [{1: 2}])
 
     def test_downloads_multiple_chunks(self):
-        self.mock_requests_get.return_value = response = mock.Mock()
-
         # Tell responseObject.json() to return
         # `first_response` the first time it's called and
         # `second_response` the second time it's called.
         first_response = [{1: 2}] * 5000
         second_response = [{1: 2}]
-        response.json.side_effect = Dispenser([first_response, second_response])
+        self.mock_response.json.side_effect = Dispenser([first_response, second_response])
 
         d = download_data(self.box_url)
 
@@ -58,7 +56,6 @@ class TestDataDownloader(unittest.TestCase):
         self.mock_requests_get.assert_called_with(url)
 
         self.assertEqual(d, [{1: 2}] * 5001)
-
 
 if __name__ == '__main__':
    unittest.main()
