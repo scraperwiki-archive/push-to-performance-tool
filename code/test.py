@@ -33,7 +33,6 @@ class TestDataDownloader(unittest.TestCase):
         self.mock_requests_get.assert_called_with(url)
 
     def test_decoding_requested_data(self):
-
         # Tell responseObject.json() what to return
         self.mock_response.json.return_value = [{1: 2}]
 
@@ -66,6 +65,13 @@ class TestDataDownloader(unittest.TestCase):
 
     def test_missing_table(self):
         self.mock_response.json.return_value = 'Could not find table swdata'
+
+        d = download_data(self.box_url)
+
+        self.assertEqual(d, [])
+
+    def test_empty_table(self):
+        self.mock_response.json.return_value = []
 
         d = download_data(self.box_url)
 
