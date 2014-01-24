@@ -1,4 +1,4 @@
 #!/bin/sh
 
 pip install --user --update -r ~/requirements.txt
-python ~/code/update.py
+python ~/code/update.py $@
