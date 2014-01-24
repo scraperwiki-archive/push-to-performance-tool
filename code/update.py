@@ -34,12 +34,19 @@ def download_data(box_url):
     all_results = []
     for offset in itertools.count(0, 5000):
         url = '{0}/sql?q=select * from swdata limit 5000 offset {1}'.format(box_url, offset)
-        chunk = requests.get(url).json()
+        response = requests.get(url)
+
+        try:
+            chunk = response.json()
+        except:
+            return all_results
+
         if not isinstance(chunk, list):
             chunk = []
         all_results.extend(chunk)
         if len(chunk) < 5000:
             break
+
     return all_results
 
 

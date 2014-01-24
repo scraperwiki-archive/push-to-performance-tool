@@ -3,6 +3,10 @@
 import unittest
 import mock
 
+# for testing JSONDecodeErrors
+# from requests.json()
+import simplejson
+
 # The functions we want to test
 # are in ./update.py
 from update import download_data
@@ -72,6 +76,13 @@ class TestDataDownloader(unittest.TestCase):
 
     def test_empty_table(self):
         self.mock_response.json.return_value = []
+
+        d = download_data(self.box_url)
+
+        self.assertEqual(d, [])
+
+    def test_non_json_response(self):
+        self.mock_response.json.side_effect = simplejson.decoder.JSONDecodeError('', '', 0)
 
         d = download_data(self.box_url)
 
