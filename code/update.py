@@ -4,7 +4,6 @@ import datetime
 import requests
 import sys
 import itertools
-from types import ListType
 
 import scraperwiki.runlog; scraperwiki.runlog.setup()
 
@@ -36,7 +35,7 @@ def download_data(box_url):
     for offset in itertools.count(0, 5000):
         url = '{0}/sql?q=select * from swdata limit 5000 offset {1}'.format(box_url, offset)
         chunk = requests.get(url).json()
-        if type(chunk) != ListType:
+        if not isinstance(chunk, list):
             chunk = []
         all_results.extend(chunk)
         if len(chunk) < 5000:
