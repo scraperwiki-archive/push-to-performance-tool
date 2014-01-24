@@ -1,6 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
-echo $(date) >> /home/http/index.html
-echo args = "$@" >> /home/http/index.html
-env >> /home/http/index.html
-echo >> /home/http/index.html
+pip install --user --update -r ~/requirements.txt
+python ~/code/update.py $@
