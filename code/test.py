@@ -2,6 +2,7 @@
 
 import unittest
 import mock
+import datetime
 
 # for testing JSONDecodeErrors
 # from requests.json()
@@ -147,6 +148,32 @@ class TestDataPusher(unittest.TestCase):
         self.assertEquals(p.call_count, 2)
         p.assert_any_call([{1: 2}] * 2000)
         p.assert_any_call([{1: 2}])
+
+    @mock.patch('update.Bucket')
+    def test_successful_runs_are_logged(self, Bucket):
+        url = 'http://performance.example.com'
+        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+        data = [{1: 2}]
+
+        log = push_data(url, token, data)
+
+        self.assertEquals(log['status'], 'success')
+        self.assertEquals(log['rows_pushed'], 1)
+        self.assertEquals(log['message'], None)
+        self.assertIsInstance(log['date'], datetime.datetime)
+
+    @mock.patch('update.Bucket')
+    def test_empty_data_is_logged(self, Bucket):
+        url = 'http://performance.example.com'
+        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+        data = []
+
+        log = push_data(url, token, data)
+
+        self.assertEquals(log['status'], 'error')
+        self.assertEquals(log['rows_pushed'], 0)
+        self.assertEquals(log['message'], 'No rows in source dataset')
+        self.assertIsInstance(log['date'], datetime.datetime)
 
 
 if __name__ == '__main__':

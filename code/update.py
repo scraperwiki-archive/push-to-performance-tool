@@ -23,11 +23,9 @@ def main():
     data = download_data(box_url)
 
     # Upload data to performance platform
-    result = push_data(url, token, data)
+    log = push_data(url, token, data)
 
-    # Write upload date to index
-    if result != "all good":
-        scraperwiki.status("error", "data failed to upload")
+    # scraperwiki.sql.save([], log)
 
 
 def download_data(box_url):
@@ -54,11 +52,25 @@ def download_data(box_url):
 
 
 def push_data(url, token, data):
-    if len(data):
+    num_rows = len(data)
+    if num_rows:
         bucket = Bucket(url, token)
         with batch_processor(bucket.post) as uploader:
             for row in data:
                 uploader.push(row)
+        return {
+            "date": datetime.datetime.now(),
+            "status": "success",
+            "rows_pushed": num_rows,
+            "message": None
+        }
+    else:
+        return {
+            "date": datetime.datetime.now(),
+            "status": "error",
+            "rows_pushed": 0,
+            "message": "No rows in source dataset"
+        }
 
 
 if __name__ == '__main__':
