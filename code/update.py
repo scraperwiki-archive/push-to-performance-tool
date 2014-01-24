@@ -22,10 +22,13 @@ def main():
     box_url = sys.argv[1]
     data = download_data(box_url)
 
+    url = 'http://performance.example.com'
+    token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+
     # Upload data to performance platform
     log = push_data(url, token, data)
 
-    # scraperwiki.sql.save([], log)
+    scraperwiki.sql.save([], log)
 
 
 def download_data(box_url):

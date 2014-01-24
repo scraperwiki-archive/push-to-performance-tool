@@ -10,7 +10,7 @@ import simplejson
 
 # The functions we want to test
 # are in ./update.py
-from update import download_data, push_data
+from update import download_data, push_data, main
 
 
 # This gets used in our tests to fake some API calls
@@ -159,6 +159,22 @@ class TestDataPusher(unittest.TestCase):
         self.assertEquals(log['rows_pushed'], 0)
         self.assertEquals(log['message'], 'No rows in source dataset')
         self.assertIsInstance(log['date'], datetime.datetime)
+
+
+class TestMain(unittest.TestCase):
+    @mock.patch('scraperwiki.sql.save')
+    @mock.patch('update.push_data')
+    @mock.patch('update.download_data')
+    @mock.patch('sys.argv', new=['foo', 'bar'])
+    def test_status_is_saved_to_sql_database(self, download_data, push_data, save):
+        url = 'http://performance.example.com'
+        token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+
+        main()
+
+        download_data.assert_called_with('bar')
+        push_data.assert_called_with(url, token, download_data.return_value)
+        save.assert_called_with([], push_data.return_value)
 
 
 if __name__ == '__main__':
