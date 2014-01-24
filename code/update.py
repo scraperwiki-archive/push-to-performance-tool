@@ -14,16 +14,21 @@ import scraperwiki.runlog; scraperwiki.runlog.setup()
 
 
 def main():
-    # Get the data from the dataset
     if len(sys.argv) < 2:
-        # write error message
+        scraperwiki.sql.save([], {
+            "date": datetime.datetime.now(),
+            "status": "error",
+            "rows_pushed": 0,
+            "message": "No source dataset URL was supplied"
+        })
         return
 
     box_url = sys.argv[1]
-    data = download_data(box_url)
-
     url = 'http://performance.example.com'
     token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+
+    # Get data from source dataset
+    data = download_data(box_url)
 
     # Upload data to performance platform
     log = push_data(url, token, data)

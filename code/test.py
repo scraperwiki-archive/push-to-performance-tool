@@ -176,6 +176,18 @@ class TestMain(unittest.TestCase):
         push_data.assert_called_with(url, token, download_data.return_value)
         save.assert_called_with([], push_data.return_value)
 
+    @mock.patch('scraperwiki.sql.save')
+    @mock.patch('sys.argv', new=['foo'])
+    def test_missing_command_line_argument(self, save):
+        main()
+
+        row = save.call_args[0][1]
+
+        self.assertEquals(row['status'], 'error')
+        self.assertEquals(row['rows_pushed'], 0)
+        self.assertEquals(row['message'], 'No source dataset URL was supplied')
+        self.assertIsInstance(row['date'], datetime.datetime)
+
 
 if __name__ == '__main__':
    unittest.main()
