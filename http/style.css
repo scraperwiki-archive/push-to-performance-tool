@@ -1,0 +1,10 @@
+#settings {
+  width: 600px;
+  margin: 40px auto;
+}
+
+#saved {
+  display: none;
+  margin-left: 10px;
+  font-size: 14px;
+}
