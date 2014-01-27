@@ -18,6 +18,12 @@ var saveSettings = function(e) {
       return false
   }
 
+  // add http:// if they forgot it
+  if (!/https?:\/\//.test(url)) {
+    url = 'http://' + url
+    $('#url').val(url)
+  }
+
   // feedback while saving details
   $('#save').addClass('loading disabled').html('Saving&hellip;')
 
