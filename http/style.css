@@ -1,6 +1,10 @@
 #settings {
-  width: 600px;
+  width: 650px;
   margin: 40px auto;
+}
+
+#settings input {
+  width: 300px;
 }
 
 #saved {
