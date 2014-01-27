@@ -42,6 +42,27 @@ var saveSettings = function(e) {
 }
 
 $(function(){
+
+  // get current settings
+  $.ajax({
+    url: 'allSettings.json',
+    dataType: 'json'
+  }).done(function(settings) {
+    $('#url').val(settings.url)
+    $('#token').val(settings.token)
+  }).fail(function(jqXHR, textStatus, errorThrown){
+    if (jqXHR.status == 404) {
+      // allSettings.json hasn't been created yet
+    } else if (textStatus == 'parsererror') {
+      // allSettings.json isn't valid JSON - act like it doesn't exist
+    } else {
+      var title = 'Something odd happened when we tried to load your settings'
+      var message = '<pre>' + jqXHR.status + ' ' + jqXHR.statusText + "\n" + errorThrown + '</pre>'
+      scraperwiki.alert(title, message, 'error')
+    }
+  })
+
+  // handle settings changes
   $('#settings').on('submit', saveSettings)
   $('#url, #token').on('change', function(){
       $(this).parents('.control-group').removeClass('error')
