@@ -64,7 +64,7 @@ $(function(){
 
   // handle settings changes
   $('#settings').on('submit', saveSettings)
-  $('#url, #token').on('change', function(){
+  $('#url, #token').on('change', function() {
       $(this).parents('.control-group').removeClass('error')
   })
 })
