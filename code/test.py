@@ -170,16 +170,38 @@ class TestSettingsReader(unittest.TestCase):
     def test_valid_json_returns_settings(self, mock_open):
         mock_open.return_value = mock.MagicMock(spec=file)
 
-        json = simplejson.dumps({
+        settings = {
             'url': 'http://performance.example.com',
             'token': '6c32941c-7ce3-4d87-8f20-7598605c6142'
-        })
+        }
+
+        json = simplejson.dumps(settings)
         mock_open.return_value.__enter__.return_value = StringIO(json)
 
         url, token = read_settings()
 
-        self.assertEquals(url, 'http://performance.example.com')
-        self.assertEquals(token, '6c32941c-7ce3-4d87-8f20-7598605c6142')
+        self.assertEquals(url, settings['url'])
+        self.assertEquals(token, settings['token'])
+
+    @mock.patch('update.open', create=True)
+    def test_invalid_json_returns_none(self, mock_open):
+        mock_open.return_value = mock.MagicMock(spec=file)
+
+        mock_open.return_value.__enter__.return_value = StringIO('<b></b>')
+
+        url, token = read_settings()
+
+        self.assertEquals(url, None)
+        self.assertEquals(token, None)
+
+    @mock.patch('update.open', create=True)
+    def test_missing_file_returns_none(self, mock_open):
+        mock_open.side_effect = IOError
+
+        url, token = read_settings()
+
+        self.assertEquals(url, None)
+        self.assertEquals(token, None)
 
 
 class TestMain(unittest.TestCase):

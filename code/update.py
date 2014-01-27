@@ -39,9 +39,17 @@ def main():
 
 
 def read_settings():
-    with open('../http/allSettings.json') as file:
-        settings = json.loads(file.read())
-        return (settings['url'], settings['token'])
+    try:
+        file_handle = open('../http/allSettings.json')
+    except IOError:
+        return (None, None)
+
+    with file_handle as file:
+        try:
+            settings = json.loads(file.read())
+            return (settings['url'], settings['token'])
+        except ValueError:
+            return (None, None)
 
 
 def download_data(box_url):
