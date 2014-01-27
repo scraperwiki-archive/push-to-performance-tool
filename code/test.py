@@ -8,9 +8,13 @@ import datetime
 # from requests.json()
 import simplejson
 
+# for mocking the allSettings.json
+# file handles
+from StringIO import StringIO
+
 # The functions we want to test
 # are in ./update.py
-from update import download_data, push_data, main
+from update import download_data, push_data, read_settings, main
 
 
 # This gets used in our tests to fake some API calls
@@ -161,14 +165,35 @@ class TestDataPusher(unittest.TestCase):
         self.assertIsInstance(log['date'], datetime.datetime)
 
 
+class TestSettingsReader(unittest.TestCase):
+    @mock.patch('update.open', create=True)
+    def test_valid_json_returns_settings(self, mock_open):
+        mock_open.return_value = mock.MagicMock(spec=file)
+
+        json = simplejson.dumps({
+            'url': 'http://performance.example.com',
+            'token': '6c32941c-7ce3-4d87-8f20-7598605c6142'
+        })
+        mock_open.return_value.__enter__.return_value = StringIO(json)
+
+        url, token = read_settings()
+
+        self.assertEquals(url, 'http://performance.example.com')
+        self.assertEquals(token, '6c32941c-7ce3-4d87-8f20-7598605c6142')
+
+
 class TestMain(unittest.TestCase):
+
+    @mock.patch('update.read_settings')
     @mock.patch('scraperwiki.sql.save')
     @mock.patch('update.push_data')
     @mock.patch('update.download_data')
     @mock.patch('sys.argv', new=['foo', 'bar'])
-    def test_status_is_saved_to_sql_database(self, download_data, push_data, save):
+    def test_status_is_saved_to_sql_database(self, download_data, push_data, save, read_settings):
         url = 'http://performance.example.com'
         token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+
+        read_settings.return_value = (url, token)
 
         main()
 
@@ -187,6 +212,19 @@ class TestMain(unittest.TestCase):
         self.assertEquals(row['rows_pushed'], 0)
         self.assertEquals(row['message'], 'No source dataset URL was supplied')
         self.assertIsInstance(row['date'], datetime.datetime)
+
+
+    @mock.patch('update.read_settings')
+    @mock.patch('update.push_data')
+    @mock.patch('update.download_data')
+    @mock.patch('sys.argv', new=['foo', 'bar'])
+    def test_missing_settings(self, download_data, push_data, read_settings):
+        read_settings.return_value = (None, None)
+
+        main()
+
+        self.assertFalse(download_data.called)
+        self.assertFalse(push_data.called)
 
 
 if __name__ == '__main__':

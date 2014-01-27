@@ -4,6 +4,7 @@ import datetime
 import requests
 import sys
 import itertools
+import json
 
 from backdrop.collector.write import Bucket
 from backdrop.collector.write import JsonEncoder
@@ -24,16 +25,23 @@ def main():
         return
 
     box_url = sys.argv[1]
-    url = 'http://performance.example.com'
-    token = '6c32941c-7ce3-4d87-8f20-7598605c6142'
+    url, token = read_settings()
 
-    # Get data from source dataset
-    data = download_data(box_url)
+    if url and token:
 
-    # Upload data to performance platform
-    log = push_data(url, token, data)
+        # Get data from source dataset
+        data = download_data(box_url)
 
-    scraperwiki.sql.save([], log)
+        # Upload data to performance platform
+        log = push_data(url, token, data)
+
+        scraperwiki.sql.save([], log)
+
+
+def read_settings():
+    with open('../http/allSettings.json') as file:
+        settings = json.loads(file.read())
+        return (settings['url'], settings['token'])
 
 
 def download_data(box_url):
