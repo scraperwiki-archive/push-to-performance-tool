@@ -1,0 +1,14 @@
+#settings {
+  width: 650px;
+  margin: 40px auto;
+}
+
+#settings input {
+  width: 300px;
+}
+
+#saved {
+  display: none;
+  margin-left: 10px;
+  font-size: 14px;
+}

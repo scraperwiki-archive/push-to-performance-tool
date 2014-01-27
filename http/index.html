@@ -1,1 +1,40 @@
-Initial page.
+<!doctype html>
+<html>
+  <head>
+      <meta charset="utf-8">
+      <title>Push to Performance Platform</title>
+      <meta name="author" content="ScraperWiki Ltd">
+      <link rel="stylesheet" href="//scraperwiki.com/vendor/style/bootstrap.min.css">
+      <link rel="stylesheet" href="//scraperwiki.com/style/scraperwiki.css">
+      <link rel="stylesheet" href="style.css">
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+      <script src="//scraperwiki.com/vendor/js/bootstrap.min.js"></script>
+      <script src="//scraperwiki.com/js/scraperwiki.js"></script>
+      <script src="code.js"></script>
+      <meta http-equiv="cleartype" content="on">
+  </head>
+  <body>
+    <div id="content">
+      <form id="settings" class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label" for="url">URL</label>
+          <div class="controls">
+            <input type="text" id="url" placeholder="http://performance.example.com">
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="token">API Token</label>
+          <div class="controls">
+            <input type="text" id="token">
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="controls">
+            <button type="submit" id="save" class="btn btn-default">Save</button>
+            <span id="saved"><i class="icon-ok"></i> Saved</span>
+          </div>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
