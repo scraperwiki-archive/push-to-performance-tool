@@ -7,8 +7,6 @@
   width: 300px;
 }
 
-#saved {
+#edit, #saved {
   display: none;
-  margin-left: 10px;
-  font-size: 14px;
 }

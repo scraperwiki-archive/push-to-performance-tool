@@ -35,16 +35,28 @@ var saveSettings = function(e) {
     , token: token
     }
   , dataType: 'json'
-  }).done(function(data) {
-    $('#save').removeClass('loading disabled').html('Save')
-    $('#saved').show()
-    setTimeout(function() {
-      $('#saved').fadeOut()
-    }, 4000)
   }).fail(function(jqXHR, textStatus, errorThrown) {
     $('#save').removeClass('loading disabled').html('Save')
-  })
+  }).done(settingsSaved)
 
+}
+
+var settingsSaved = function(){
+  $('#url, #token').attr('disabled', true)
+  $('#save').removeClass('loading disabled').html('Save')
+  $('#save').css('display', 'none')
+  $('#saved').css('display', 'inline-block')
+  setTimeout(function() {
+    $('#saved').css('display', 'none')
+    $('#edit').css('display', 'inline-block')
+  }, 4000)
+}
+
+var editSettings = function(e){
+  $('#save').css('display', 'inline-block')
+  $('#edit').css('display', 'none')
+  $('#url, #token').removeAttr('disabled')
+  $('#url').focus()
 }
 
 $(function(){
@@ -54,8 +66,10 @@ $(function(){
     url: 'allSettings.json',
     dataType: 'json'
   }).done(function(settings) {
-    $('#url').val(settings.url)
-    $('#token').val(settings.token)
+    $('#url').val(settings.url).attr('disabled', true)
+    $('#token').val(settings.token).attr('disabled', true)
+    $('#save').css('display', 'none')
+    $('#edit').css('display', 'inline-block')
   }).fail(function(jqXHR, textStatus, errorThrown){
     if (jqXHR.status == 404) {
       // allSettings.json hasn't been created yet
@@ -69,6 +83,7 @@ $(function(){
   })
 
   // handle settings changes
+  $('#edit').on('click', editSettings)
   $('#settings').on('submit', saveSettings)
   $('#url, #token').on('change', function() {
       $(this).parents('.control-group').removeClass('error')
